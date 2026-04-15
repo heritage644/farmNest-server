@@ -9,7 +9,7 @@ env.config()
 
 
 //@desc check user via email
-//@routes POST /api/users/chekEmail
+//@routes POST /api/users/validate
 //@access public
 
 const checkEmail = asyncHandler(async (req :Request, res: Response )=>{
@@ -31,31 +31,22 @@ if (hasExtraFields) {
    })
  }
  const checkedEmail =  await User.findOne({email})
-  if(!checkEmail){
+  if(!checkedEmail){
     res.status(404)
-    throw new Error("User Not Found Sign Up")
+    throw new Error("User Not Found, kindly Sign Up")
   }
    res.status(200).json({
     message: " user exists"
    })
 })
 
-
-
-
-
-
-
-
-
-
 //@desc register user
 //@routes POST /api/users/register
 //@access public
 
 const registerUser = asyncHandler(async (req : Request, res : Response): Promise<void> => {
-const {userName, email, password } = req.body
-const allowedFields = ["userName", "email", "password"];
+const { email, password } = req.body
+const allowedFields = [ "email", "password"];
 const receivedFields = Object.keys(req.body);
 const hasExtraFields = receivedFields.some(
   field => !allowedFields.includes(field)
@@ -66,7 +57,7 @@ if (hasExtraFields) {
    return
 }
  
- if (!userName || !email || !password) {
+ if ( !email || !password) {
     res.status(400)
      throw new Error ("All fields are required")
 }
@@ -77,8 +68,6 @@ if (userExists) {
     throw new Error("user already exists")
     
 } 
-
-
 const salt = await bcrypt.genSalt(10)
 const hashedPassword = await bcrypt.hash(password, salt)
 const user = await User.create({
@@ -87,14 +76,13 @@ const user = await User.create({
 })
 if (user) {
     res.status(201).json({message: "user registered",
-        userName,
         email,
         password
     })
-}
-else {
-   
-}
+} 
+res.status(400).json ({
+  message: "failed to create user "
+})
 })
 
 //@desc LogIn user
@@ -150,5 +138,6 @@ res.status(200).json({
 
 const controllers = {
   checkEmail,
+  registerUser
 }
 export default controllers
