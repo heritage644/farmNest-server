@@ -1,5 +1,5 @@
-const mongoose = require("mongoose")
-const userSchema = mongoose.Schema({
+import mongoose from "mongoose";
+const userSchema = new mongoose.Schema({
 
     password: {
         type : String,
