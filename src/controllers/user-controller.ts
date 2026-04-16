@@ -49,46 +49,54 @@ if (hasExtraFields) {
 //@routes POST /api/users/register
 //@access public
 
-const registerUser = asyncHandler(async (req : Request, res : Response): Promise<void> => {
-const { email, password } = req.body
-const allowedFields = [ "email", "password"];
-const receivedFields = Object.keys(req.body);
-const hasExtraFields = receivedFields.some(
-  field => !allowedFields.includes(field)
-);
+const registerUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
 
-if (hasExtraFields) {
-  res.status(400).json({ message: "Invalid fields provided" });
-   return
-}
- 
- if ( !email || !password) {
-    res.status(400)
-     throw new Error ("All fields are required")
-}
+  const allowedFields = ["email", "password"];
+  const receivedFields = Object.keys(req.body);
 
-const userExists = await User.findOne({email})
-if (userExists) {
-    res.status(400)
-    throw new Error("user already exists")
-    
-} 
-const salt = await bcrypt.genSalt(10)
-const hashedPassword = await bcrypt.hash(password, salt)
-const user = await User.create({
+  const hasExtraFields = receivedFields.some(
+    field => !allowedFields.includes(field)
+  );
+
+  if (hasExtraFields) {
+    res.status(400).json({ message: "Invalid fields provided" });
+    return;
+  }
+
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("All fields are required");
+  }
+
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    res.status(400);
+    throw new Error("user already exists");
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = await User.create({
     email,
     password: hashedPassword
-})
-if (user) {
-    res.status(201).json({message: "user registered",
-        email,
-        password
-    })
-} 
-res.status(400).json ({
-  message: "failed to create user "
-})
-})
+  });
+
+  if (user) {
+    res.status(201).json({
+      message: "user registered",
+      email,
+      password
+    });
+    return;
+  }
+
+  // fallback
+  res.status(400);
+  throw new Error("failed to create user");
+});
 
 //@desc LogIn user
 //@routes POST /api/users/login
@@ -117,19 +125,19 @@ if (hasExtraFields) {
         user : {
              id: user.id,
             email : user.email
-            
         }
     }, process.env.JWT_SECRET!,
     {expiresIn: "20m"}
     
 ) 
-res.status(200).json({
+ res.status(200).json({
     accessToken,
     userId: user.id,
     email: user.email,
 
-    // optional: also send separately
 });
+return;
+
   } else {
     res.status(401)
     throw new Error("email or password invalid")
