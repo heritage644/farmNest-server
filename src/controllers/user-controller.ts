@@ -29,14 +29,19 @@ if (hasExtraFields) {
    res.status(401).json({
     message:"UNAUTHORIZED"
    })
+   return
  }
  const checkedEmail =  await User.findOne({email})
   if(!checkedEmail){
-    res.status(404)
-    throw new Error("User Not Found, kindly Sign Up")
+  res.status(200).json({
+      message: "User not found",
+      checked: false
+    })
+    return
   }
    res.status(200).json({
-    message: " user exists"
+    message: " user exists",
+    checked: true
    })
 })
 
@@ -111,18 +116,16 @@ if (hasExtraFields) {
     const accessToken = jwt.sign({
         user : {
              id: user.id,
-            userName : user.userName,
             email : user.email
             
         }
     }, process.env.JWT_SECRET!,
-    {expiresIn: "1d"}
+    {expiresIn: "20m"}
     
 ) 
 res.status(200).json({
     accessToken,
     userId: user.id,
-    userName: user.userName,
     email: user.email,
 
     // optional: also send separately
@@ -138,6 +141,7 @@ res.status(200).json({
 
 const controllers = {
   checkEmail,
-  registerUser
+  registerUser,
+  loginUser
 }
 export default controllers
