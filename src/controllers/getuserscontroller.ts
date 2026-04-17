@@ -8,7 +8,9 @@ const getDashboardUser = asyncHandler(async (req:AuthRequest, res:Response):Prom
      return;
   }
 
-  res.status(200).json(req.user);
+  res.status(200).json(req.user,
+  )
+  console.log(req.user)
 });
 const  getAllUsers = {
     getDashboardUser

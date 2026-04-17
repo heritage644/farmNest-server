@@ -41,7 +41,8 @@ if (hasExtraFields) {
   }
    res.status(200).json({
     message: " user exists",
-    checked: true
+    checked: true,
+    email: checkedEmail.email   
    })
 })
 
@@ -127,7 +128,7 @@ if (hasExtraFields) {
             email : user.email
         }
     }, process.env.JWT_SECRET!,
-    {expiresIn: "20m"}
+    {expiresIn: "1D"}
     
 ) 
  res.status(200).json({
