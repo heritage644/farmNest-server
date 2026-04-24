@@ -1,11 +1,13 @@
 import express from "express";
 import env from "dotenv";
+import routes from "./routes/getProducts.js";
 import Routers from "./routes/authRoute.js";
 import connectDB from "./models/dbconnection.js";
 import errorHandler from "./middlewares/genError.js";
 import router from "./routes/getUserRoute.js";
 import cors from "cors"
 import profileRouter from "./routes/getProfilr.js";
+
 env.config();
 const app = express();
 app.use(cors())
@@ -22,6 +24,11 @@ app.use(
     app.use(
         "/api/users",router
     )
+    
+    app.use(
+        "/api/products",routes
+    )
+
 app.use(errorHandler)
 app.listen(port,()=> {
 console.log(`App is ruuning on ${port}`)

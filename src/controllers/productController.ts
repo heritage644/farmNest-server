@@ -1,8 +1,18 @@
 
-import User from "../models/farmNestUser.js"
 import asyncHandler from "express-async-handler";
-import bcrypt from "bcrypt"
 import type { Request, Response } from "express";
-import jwt from "jsonwebtoken"
-import env from "dotenv"
-env.config()
+import Product from "../models/productsSchema.js";
+
+
+//@desc get user products
+//@routes GET /api/products
+//@access public
+
+const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const products = await Product.find();
+  res.json(products);
+});
+const getAllProducts ={
+    getProducts
+}
+export default getAllProducts

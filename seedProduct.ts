@@ -1,18 +1,34 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import Product from "./src/models/productsSchema.js";
 import axios from "axios";
-import { url } from "inspector/promises";
+import Product from "./src/models/productsSchema.js";
+
 dotenv.config();
 
+const MONGO_URI = process.env.MONGO_URI!;
+const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY!;
 
+// 🔥 Get image from Unsplash
+const getImage = async (name: string) => {
+  const query = encodeURIComponent(name);
 
+  const url = `https://api.unsplash.com/search/photos?query=${query}&per_page=1&client_id=${UNSPLASH_KEY}`;
 
-const getImage = (name: string) => {
-  return `https://picsum.photos/seed/${encodeURIComponent(name)}/400/400`;
+  try {
+    const response = await axios.get(url);
+    return (
+      response.data.results[0]?.urls?.regular ||
+      "https://via.placeholder.com/400"
+    );
+  } catch (error) {
+    console.error("Unsplash error:", error);
+    return "https://via.placeholder.com/400";
+  }
 };
 
+// 🔥 RAW PRODUCTS (NO async here)
 const products = [
+
   {
     name: "Red Apple",
     price: 2.5,
@@ -104,62 +120,46 @@ const products = [
     rating: 4.7
   },
 
-  // 🔥 auto-generated products (still works perfectly)
-  ...Array.from({ length: 100 }).map((_, i) => ({
+  //  auto products
+  ...Array.from({ length: 40 }).map((_, i) => ({
     name: `Fresh Fruit Mix ${i + 1}`,
     price: Number((Math.random() * 5 + 1).toFixed(2)),
     description: "Assorted fresh seasonal fruits",
     category: "fruits",
-    image: getImage("mixed fruits"),
     stock: Math.floor(Math.random() * 150) + 20,
     rating: Number((Math.random() * 1 + 4).toFixed(1))
   }))
 ];
 
-
-const getStableImage = async (name: string) => {
-  const url = getImage(name);
-
-  try {
-    const response = await axios.get(url, {
-      maxRedirects: 5,
-      validateStatus: (status) => status >= 200 && status < 400
-    });
-
-    return response.request.res.responseUrl || url;     // ✅ real fixed image
-  } catch (err) {
-    console.log(`⚠️ Failed for ${name}, using fallback`);
-    return "https://via.placeholder.com/400?text=Fruit";
-  }
-};
-
+//  SEED FUNCTION
 const seedData = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI!);
-    console.log("✅ Connected to MongoDB");
+    await mongoose.connect(MONGO_URI);
+    console.log(" Connected to MongoDB");
 
     await Product.deleteMany();
 
-    const productsWithImages = [];
+    const updatedProducts = [];
 
     for (const product of products) {
-      const image = await getStableImage(product.name);
+      const image = await getImage(product.name);
 
-      productsWithImages.push({
+      updatedProducts.push({
         ...product,
-       Image: image,
-       Category: product.category.toLowerCase() || "fruits"
+        Image: image,
+        Category: product.category
+
       });
 
-      console.log(`✔ Image cached for: ${product.name}`);
+      console.log(` Added image for ${product.name}`);
     }
 
-    await Product.insertMany(productsWithImages);
+    await Product.insertMany(updatedProducts);
 
-    console.log("✅ Products seeded successfully");
+    console.log(" Products seeded successfully");
     process.exit();
   } catch (error) {
-    console.error(error);
+    console.error(" Error:", error);
     process.exit(1);
   }
 };
