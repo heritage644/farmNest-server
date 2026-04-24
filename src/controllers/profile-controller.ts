@@ -98,7 +98,7 @@ const upsertUserAddress = asyncHandler(
 
     // 🔍 check if address has _id (means update)
     if (addresses._id) {
-      existingAddress = user.addresses.id(addresses._id);
+      existingAddress = (user.addresses as any).id(addresses._id);
 
       if (!existingAddress) {
         res.status(404);
