@@ -31,7 +31,8 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
-
+     "outDir": "./dist",
+     "rootDir": "./src",
     // Recommended Options
     "strict": true,
     "verbatimModuleSyntax": true,
@@ -39,5 +40,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include":["src/**/*"]
 }

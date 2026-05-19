@@ -30,6 +30,6 @@ app.use(
     )
 
 app.use(errorHandler)
-app.listen(port,()=> {
+app.listen(Number(port), '0.0.0.0',()=> {
 console.log(`App is ruuning on ${port}`)
 })
