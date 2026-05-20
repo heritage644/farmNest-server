@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import env from "dotenv"
 import UserProfile from "../models/farmNestProfile.js";
 import type{ AuthRequest } from "../middlewares/ussserMiddleware.js";
-import type { get } from "node:http";
+import { createClient } from "redis";
 
 //@desc get user profile
 //@routes GET /api/profile
